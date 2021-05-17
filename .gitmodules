@@ -1,0 +1,3 @@
+[submodule "sudoku.js"]
+	path = sudoku.js
+	url = https://github.com/robatron/sudoku.js.git
