@@ -5,11 +5,18 @@ body {
     sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-  }
+}
+main {
+    margin: auto;
+}
+caption {
+    font-size: 20pt;
+    padding: 10px;
+}
 table { 
     border-collapse: collapse; 
     font-family: Calibri, sans-serif;
-    margin: auto;
+    cursor: pointer;
 }
 colgroup, tbody { 
     border: solid medium; 
@@ -20,4 +27,21 @@ td {
     width: 2em; 
     text-align: center; 
     padding: 0; 
+}
+td:hover {
+    background-color: #ccc;
+}
+@media screen and (max-width: 765px){
+    main {
+        width: 300px;
+    }
+}
+@media screen and (min-width: 765px){
+    main {
+        width: 450px;
+    }
+    td {
+        height: 3em; 
+        width: 3em; 
+    }
 }
