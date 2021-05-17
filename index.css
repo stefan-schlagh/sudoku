@@ -31,6 +31,9 @@ td {
 td:hover, .lightGray {
     background-color: #f2f2f2;
 }
+.middleGray {
+    background-color: #e6e6e6;
+}
 .gray {
     background-color: #bfbfbf !important;
 }

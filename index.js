@@ -1,7 +1,5 @@
 "use strict";
 
-//TODO: mark fields with same number
-
 // globals
 const area = document.getElementById("area")
 // grid (numbers)
@@ -79,6 +77,13 @@ function createGrid(){
     })
 }
 
+function deselectCurrent(){
+    // is there a currentSelected?
+    if(currentSelected.x !== null)
+    // deselect currentSelected
+    gridElements[currentSelected.y][currentSelected.x].deselect()
+}
+
 class GridElement {
     // does the content of the element come from the generated?
     isOriginal = true
@@ -95,10 +100,7 @@ class GridElement {
         this.domElement.addEventListener("click",this.select)
     }
     select = () => {
-        // is there a currentSelected?
-        if(currentSelected.x !== null)
-            // deselect currentSelected
-            gridElements[currentSelected.y][currentSelected.x].deselect()
+        deselectCurrent()
         // set currentSelected
         currentSelected.x = this.x
         currentSelected.y = this.y
@@ -115,6 +117,10 @@ class GridElement {
         this.doOnCell(element => {
             element.domElement.classList.add("lightGray")
         })
+        // add color to same number
+        this.doOnSameNumber(element => {
+            element.domElement.classList.add("middleGray")
+        })
     }
     deselect = () => {
         // remove color
@@ -129,6 +135,10 @@ class GridElement {
         // remove color from cell
         this.doOnCell(element => {
             element.domElement.classList.remove("lightGray")
+        })
+        // remove color from same number
+        this.doOnSameNumber(element => {
+            element.domElement.classList.remove("middleGray")
         })
     }
     // callback returns for each GridElement in the row
@@ -163,21 +173,37 @@ class GridElement {
             }
         }
     }
+    doOnSameNumber = (cb) => {
+        for(let i=0;i<9;i++){
+            for(let j=0;j<9;j++){
+                const gridElement = gridElements[i][j]
+                if(this.domElement.innerText !== " " 
+                    && gridElement.domElement.innerText === this.domElement.innerText){
+
+                        cb(gridElement)
+                }
+            }
+        }
+    }
     // is the cell itself on these coordinates?
     isSelf = (x,y) => {
         return this.x == x && this.y == y
     }
     setOriginalChar = char => {
-        this.domElement.innerHTML = char
+        this.domElement.innerText = char
         this.domElement.classList.add("original")
         this.isOriginal = true
     }
     setChar = char => {
-        this.domElement.innerHTML = char
+        this.domElement.innerText = char
     }
 }
 
 function fillGridWithGeneratedNumbers(){
+    // deselect current cell
+    deselectCurrent()
+    currentSelected.x = null
+    currentSelected.y = null
     // get difficulty
     const difficulty = document.getElementById("difficulty").value
     // generate numbers
@@ -192,6 +218,7 @@ function fillGridWithGeneratedNumbers(){
             if(char == "."){
                 char = " "
                 gridElement.isOriginal = false
+                gridElement.domElement.classList.remove("original")
                 gridElement.setChar(char)
             } else
                 gridElement.setOriginalChar(char)
