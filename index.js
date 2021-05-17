@@ -1,5 +1,7 @@
 "use strict";
 
+//TODO: mark fields with same number
+
 // globals
 const area = document.getElementById("area")
 // grid (numbers)
@@ -41,9 +43,45 @@ function createGrid(){
     document.getElementById("generate").addEventListener("click",() => {
         fillGridWithGeneratedNumbers()
     })
+    // add keylistener for arrows
+    document.getElementsByTagName("table")[0].addEventListener("keyup",event => {
+        let selected
+        if(event.code == "ArrowUp"){
+            selected = {
+                x: currentSelected.x,
+                // y - 1, but check for boundaries
+                y: currentSelected.y > 0 ? currentSelected.y - 1 : 0
+            }
+        } else if(event.code == "ArrowRight"){
+            selected = {
+                // x + 1, but check for boundaries
+                x: currentSelected.x < 8 ? currentSelected.x + 1 : 8,
+                y: currentSelected.y
+            }
+        } else if(event.code == "ArrowDown"){
+            selected = {
+                x: currentSelected.x,
+                // y + 1, but check for boundaries
+                y: currentSelected.y < 8 ? currentSelected.y + 1 : 8
+            }
+        } else if(event.code == "ArrowLeft"){
+            selected = {
+                // x - 1, but check for boundaries
+                x: currentSelected.x > 0 ? currentSelected.x - 1 : 0,
+                y: currentSelected.y
+            }
+        } else {
+            // nothing selected, return
+            return
+        }
+        const element = gridElements[selected.y][selected.x]
+        element.select()
+    })
 }
 
 class GridElement {
+    // does the content of the element come from the generated?
+    isOriginal = true
 
     constructor(y,x){
         // x,y
@@ -56,7 +94,7 @@ class GridElement {
         // add event
         this.domElement.addEventListener("click",this.select)
     }
-    select = event => {
+    select = () => {
         // is there a currentSelected?
         if(currentSelected.x !== null)
             // deselect currentSelected
@@ -78,7 +116,7 @@ class GridElement {
             element.domElement.classList.add("lightGray")
         })
     }
-    deselect = event => {
+    deselect = () => {
         // remove color
         this.domElement.classList.remove("gray")
         // remove color from row and col
@@ -126,8 +164,16 @@ class GridElement {
         }
     }
     // is the cell itself on these coordinates?
-    isSelf(x,y){
+    isSelf = (x,y) => {
         return this.x == x && this.y == y
+    }
+    setOriginalChar = char => {
+        this.domElement.innerHTML = char
+        this.domElement.classList.add("original")
+        this.isOriginal = true
+    }
+    setChar = char => {
+        this.domElement.innerHTML = char
     }
 }
 
@@ -139,14 +185,17 @@ function fillGridWithGeneratedNumbers(){
     // fill grid with numbers
     for(let i=0;i<9;i++){
         for(let j=0;j<9;j++){
-            const gridElement = gridElements[i][j].domElement
+            const gridElement = gridElements[i][j]
             // get char
             let char = generatedNumbers.charAt(i*9 + j)
             // if char is . , use ␣ 
-            if(char == ".")
+            if(char == "."){
                 char = " "
+                gridElement.isOriginal = false
+                gridElement.setChar(char)
+            } else
+                gridElement.setOriginalChar(char)
             grid[i][j] = char
-            gridElement.innerText = char
         }
     }
 }
