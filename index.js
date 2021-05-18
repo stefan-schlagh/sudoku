@@ -2,8 +2,6 @@
 
 // globals
 const area = document.getElementById("area")
-// grid (numbers)
-const grid = new Array(9)
 // grid (elements)
 const gridElements = new Array(9)
 // generated numbers are stored here
@@ -16,10 +14,6 @@ const currentSelected = {
 
 // create the grid
 function createGrid(){
-    // init grid as empty array
-    for(let i=0;i<9;i++){
-        grid[i] = new Array(9)
-    }
     // init gridElements
     let tBody;
     for(let i=0;i<9;i++){
@@ -41,39 +35,59 @@ function createGrid(){
     document.getElementById("generate").addEventListener("click",() => {
         fillGridWithGeneratedNumbers()
     })
-    // add keylistener for arrows
+    // add keylistener
     document.getElementsByTagName("table")[0].addEventListener("keyup",event => {
         let selected
-        if(event.code == "ArrowUp"){
-            selected = {
-                x: currentSelected.x,
-                // y - 1, but check for boundaries
-                y: currentSelected.y > 0 ? currentSelected.y - 1 : 0
+        // arrows
+        if(event.code.includes("Arrow")){
+            if(event.code == "ArrowUp"){
+                selected = {
+                    x: currentSelected.x,
+                    // y - 1, but check for boundaries
+                    y: currentSelected.y > 0 ? currentSelected.y - 1 : 0
+                }
+            } else if(event.code == "ArrowRight"){
+                selected = {
+                    // x + 1, but check for boundaries
+                    x: currentSelected.x < 8 ? currentSelected.x + 1 : 8,
+                    y: currentSelected.y
+                }
+            } else if(event.code == "ArrowDown"){
+                selected = {
+                    x: currentSelected.x,
+                    // y + 1, but check for boundaries
+                    y: currentSelected.y < 8 ? currentSelected.y + 1 : 8
+                }
+            } else if(event.code == "ArrowLeft"){
+                selected = {
+                    // x - 1, but check for boundaries
+                    x: currentSelected.x > 0 ? currentSelected.x - 1 : 0,
+                    y: currentSelected.y
+                }
+            } else {
+                // nothing selected, return
+                return
             }
-        } else if(event.code == "ArrowRight"){
-            selected = {
-                // x + 1, but check for boundaries
-                x: currentSelected.x < 8 ? currentSelected.x + 1 : 8,
-                y: currentSelected.y
-            }
-        } else if(event.code == "ArrowDown"){
-            selected = {
-                x: currentSelected.x,
-                // y + 1, but check for boundaries
-                y: currentSelected.y < 8 ? currentSelected.y + 1 : 8
-            }
-        } else if(event.code == "ArrowLeft"){
-            selected = {
-                // x - 1, but check for boundaries
-                x: currentSelected.x > 0 ? currentSelected.x - 1 : 0,
-                y: currentSelected.y
-            }
-        } else {
-            // nothing selected, return
-            return
+            const element = gridElements[selected.y][selected.x]
+            element.select()
         }
-        const element = gridElements[selected.y][selected.x]
-        element.select()
+        // numbers
+        else if(event.code.includes("Digit") || event.code.includes("Numpad")){
+
+            const digit = parseInt(event.code.replace("Digit","").replace("Numpad",""))
+            // if digit is NaN or 0, return
+            if(isNaN(digit) || digit == 0)
+                return
+
+            const element = gridElements[currentSelected.y][currentSelected.x]
+            // if element is original, do not allow to change
+            if(!element.isOriginal){
+                deselectCurrent()
+                element.setChar(digit)
+                element.select()
+            }
+            console.log(checkGrid())
+        }
     })
 }
 
@@ -87,6 +101,8 @@ function deselectCurrent(){
 class GridElement {
     // does the content of the element come from the generated?
     isOriginal = true
+    // value of the element
+    value = NaN
 
     constructor(y,x){
         // x,y
@@ -140,6 +156,7 @@ class GridElement {
         this.doOnSameNumber(element => {
             element.domElement.classList.remove("middleGray")
         })
+        this.check()
     }
     // callback returns for each GridElement in the row
     doOnRow = (y,cb) => {
@@ -174,13 +191,14 @@ class GridElement {
         }
     }
     doOnSameNumber = (cb) => {
-        for(let i=0;i<9;i++){
-            for(let j=0;j<9;j++){
-                const gridElement = gridElements[i][j]
-                if(this.domElement.innerText !== " " 
-                    && gridElement.domElement.innerText === this.domElement.innerText){
+        if(this.domElement.innerText !== ""){ 
+            for(let i=0;i<9;i++){
+                for(let j=0;j<9;j++){
+                    const gridElement = gridElements[i][j]
+                    if(gridElement.domElement.innerText == this.domElement.innerText){
 
-                        cb(gridElement)
+                            cb(gridElement)
+                    }
                 }
             }
         }
@@ -190,13 +208,94 @@ class GridElement {
         return this.x == x && this.y == y
     }
     setOriginalChar = char => {
-        this.domElement.innerText = char
+        this.setChar(char)
         this.domElement.classList.add("original")
         this.isOriginal = true
     }
     setChar = char => {
         this.domElement.innerText = char
+        this.prevValue = this.value
+        this.value = parseInt(char)
     }
+    // check if empty
+    empty = () => {
+        return isNaN(this.value)
+    }
+    // check if valid
+    check = () => {
+        // if value 
+        let valid = true
+        // row
+        const row = gridElements[this.y]
+        for(let i=0;i<9;i++){
+            // if not self
+            if(!this.isSelf(i,this.y)){
+                // y = y, i = x
+                const value = gridElements[this.y][i].value
+                if(value == this.value){
+                    gridElements[this.y][i].markRed()
+                    valid = false
+                } else if(value == this.prevValue){
+                    gridElements[this.y][i].unMarkRed()
+                }
+            }
+        }
+        // col
+        for(let i=0;i<9;i++){
+            // if not self
+            if(!this.isSelf(this.x,i)){
+                // x = x, y = i
+                const value = gridElements[i][this.x].value
+                if(value == this.value){
+                    gridElements[i][this.x].markRed()
+                    valid = false
+                } else if(value == this.prevValue){
+                    gridElements[i][this.x].unMarkRed()
+                }
+            }
+        }
+        // cell
+        const origin = this.getCellOrigin()
+        for(let i=0;i<3;i++){
+            for(let j=0;j<3;j++){
+                // get x and y
+                const x = origin.x + i
+                const y = origin.y + j
+                // if not self
+                if(!this.isSelf(x,y)){
+                    const value = gridElements[y][x].value
+                    if(value == this.value){
+                        gridElements[y][x].markRed()
+                        valid = false
+                    } else if(value == this.prevValue){
+                        gridElements[y][x].unMarkRed()
+                    }
+                }
+            }
+        }
+        if(valid)
+            this.unMarkRed()
+        else
+            this.markRed()
+        return valid
+    }
+    markRed = () => {
+        this.domElement.classList.add("red")
+    }
+    unMarkRed = () => {
+        this.domElement.classList.remove("red")
+    }
+}
+
+function checkGrid(){
+    for(let i=0;i<9;i++){
+        for(let j=0;j<9;j++){
+            const gridElement = gridElements[i][j]
+            if(gridElement.empty() || !gridElement.check())
+                return false
+        }
+    }
+    return true;
 }
 
 function fillGridWithGeneratedNumbers(){
@@ -219,10 +318,10 @@ function fillGridWithGeneratedNumbers(){
                 char = " "
                 gridElement.isOriginal = false
                 gridElement.domElement.classList.remove("original")
+                gridElement.domElement.classList.remove("red")
                 gridElement.setChar(char)
             } else
                 gridElement.setOriginalChar(char)
-            grid[i][j] = char
         }
     }
 }

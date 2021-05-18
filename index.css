@@ -37,6 +37,10 @@ td:hover, .lightGray {
 .gray {
     background-color: #bfbfbf !important;
 }
+td.red {
+    color: red;
+    border-color: #000;
+}
 td.original {
     font-weight: 600;
 }
