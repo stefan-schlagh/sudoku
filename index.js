@@ -1,7 +1,10 @@
 "use strict";
 
 // globals
+// sudoku area
 const area = document.getElementById("area")
+// solved dialog
+const solvedDialog = document.getElementById("solved-dialog")
 // grid (elements)
 const gridElements = new Array(9)
 // generated numbers are stored here
@@ -33,7 +36,11 @@ function createGrid(){
     }
     // add event listener for generate
     document.getElementById("generate").addEventListener("click",() => {
-        fillGridWithGeneratedNumbers()
+        newGame()
+    })
+    // add event listener for solve
+    document.getElementById("solve").addEventListener("click",() => {
+        solveSudoku()
     })
     // add keylistener
     document.getElementsByTagName("table")[0].addEventListener("keyup",event => {
@@ -86,7 +93,8 @@ function createGrid(){
                 element.setChar(digit)
                 element.select()
             }
-            console.log(checkGrid())
+            if(checkGrid())
+                sudokuSolved()
         }
     })
 }
@@ -196,8 +204,7 @@ class GridElement {
                 for(let j=0;j<9;j++){
                     const gridElement = gridElements[i][j]
                     if(gridElement.domElement.innerText == this.domElement.innerText){
-
-                            cb(gridElement)
+                        cb(gridElement)
                     }
                 }
             }
@@ -298,6 +305,15 @@ function checkGrid(){
     return true;
 }
 
+function newGame(){
+    solvedDialog.classList.add("hide")
+    fillGridWithGeneratedNumbers()
+}
+
+function sudokuSolved(){
+    solvedDialog.classList.remove("hide")
+}
+
 function fillGridWithGeneratedNumbers(){
     // deselect current cell
     deselectCurrent()
@@ -326,5 +342,20 @@ function fillGridWithGeneratedNumbers(){
     }
 }
 
+function solveSudoku(){
+    // solve
+    const solution = sudoku.solve(generatedNumbers)
+    // fill grid with solution
+    for(let i=0;i<9;i++){
+        for(let j=0;j<9;j++){
+            const gridElement = gridElements[i][j]
+            // if char is . , use ␣ 
+            if(!gridElement.isOriginal)
+                gridElement.setChar( solution.charAt(i*9 + j))
+        }
+    }
+    sudokuSolved()
+}
+
 createGrid()
-fillGridWithGeneratedNumbers()
+newGame()
