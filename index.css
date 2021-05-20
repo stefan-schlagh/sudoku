@@ -9,6 +9,21 @@ body {
 main {
     margin: auto;
 }
+#table-head {
+    position: relative;
+    overflow: hidden;
+}
+#header,#stopwatch {
+    font-weight: 500;
+    font-size: 24px;
+    margin: 10px;
+}
+#header {
+    float: left;
+}
+#stopwatch {
+    float: right;
+}
 caption {
     font-size: 20pt;
     padding: 10px;
@@ -29,10 +44,10 @@ td {
     padding: 0; 
 }
 td:hover, .lightGray {
-    background-color: #f2f2f2;
+    background-color: #e6e6e6;
 }
 .middleGray {
-    background-color: #e6e6e6;
+    background-color: #d9d9d9;
 }
 .gray {
     background-color: #bfbfbf !important;

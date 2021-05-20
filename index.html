@@ -5,14 +5,24 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="./sudoku.js/sudoku.js" defer></script>
+    <script src="./stopWatch.js" defer></script>
     <script src="./index.js" defer></script>
     <link rel="stylesheet" href="./index.css"/>
     <title>Sudoku</title>
 </head>
 <body>
     <main>
+        <div id="table-head">
+            <span id="header">Sudoku</span>
+            <span id="stopwatch">
+                <span id="h">00</span>
+                :
+                <span id="min">00</span>
+                :
+                <span id="sec">00</span>
+            </span>
+        </div>
         <table id="area" class="area" tabindex="0">
-            <caption>Sudoku</caption>
             <colgroup><col><col><col></colgroup>
             <colgroup><col><col><col></colgroup>
             <colgroup><col><col><col></colgroup>

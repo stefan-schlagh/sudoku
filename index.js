@@ -308,10 +308,19 @@ function checkGrid(){
 function newGame(){
     solvedDialog.classList.add("hide")
     fillGridWithGeneratedNumbers()
+    // get stopwatch elements
+    const sec = document.querySelector("#stopwatch #sec")
+    const min = document.querySelector("#stopwatch #min")
+    const h = document.querySelector("#stopwatch #h")
+    // reset and start stopwatch
+    stopWatch.reset()
+    stopWatch.start(sec,min,h)
 }
 
 function sudokuSolved(){
     solvedDialog.classList.remove("hide")
+    // stop and reset stopWatch
+    stopWatch.stop()
 }
 
 function fillGridWithGeneratedNumbers(){
