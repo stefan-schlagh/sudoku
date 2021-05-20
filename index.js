@@ -85,10 +85,12 @@ function createGrid(){
             const digit = parseInt(event.code.replace("Digit","").replace("Numpad",""))
             const element = gridElements[currentSelected.y][currentSelected.x]
             // if digit is set Char to NaN
-            if(isNaN(digit) || digit === 0)
+            if(isNaN(digit) || digit === 0){
+                deselectCurrent()
                 element.setChar(" ")
+                element.select()
             // if element is original, do not allow to change
-            else if(!element.isOriginal){
+            } else if(!element.isOriginal){
                 deselectCurrent()
                 element.setChar(digit)
                 element.select()
