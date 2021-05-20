@@ -79,16 +79,16 @@ function createGrid(){
             element.select()
         }
         // numbers
-        else if(event.code.includes("Digit") || event.code.includes("Numpad")){
+        else if(event.code.includes("Digit") || event.code.includes("Numpad") 
+        || event.code.includes("space") || event.code.includes("Space")){
 
             const digit = parseInt(event.code.replace("Digit","").replace("Numpad",""))
-            // if digit is NaN or 0, return
-            if(isNaN(digit) || digit == 0)
-                return
-
             const element = gridElements[currentSelected.y][currentSelected.x]
+            // if digit is set Char to NaN
+            if(isNaN(digit) || digit === 0)
+                element.setChar(" ")
             // if element is original, do not allow to change
-            if(!element.isOriginal){
+            else if(!element.isOriginal){
                 deselectCurrent()
                 element.setChar(digit)
                 element.select()
@@ -343,10 +343,10 @@ function fillGridWithGeneratedNumbers(){
                 char = " "
                 gridElement.isOriginal = false
                 gridElement.domElement.classList.remove("original")
-                gridElement.domElement.classList.remove("red")
                 gridElement.setChar(char)
             } else
                 gridElement.setOriginalChar(char)
+            gridElement.domElement.classList.remove("red")
         }
     }
 }
